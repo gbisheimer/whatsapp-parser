@@ -117,6 +117,8 @@ def process_messages():
                 elif args.mode == 'asl':
                     if "#ASL" not in sender or any(x in sender for x in ["Café", "Alertas"]):
                         continue
+                    if args.sender and args.sender.upper() not in sender.upper():
+                        continue
                     msg_id = f"{date_str}|{sender}|{clean_msg}"
                     if msg_id in seen_ids: continue
                     seen_ids.add(msg_id)
@@ -124,6 +126,8 @@ def process_messages():
 
                 elif args.mode == 'cafe':
                     if "Café" not in sender or "#ASL" not in sender:
+                        continue
+                    if args.sender and args.sender.upper() not in sender.upper():
                         continue
                     msg_id = f"{date_str}|{sender}|{clean_msg}"
                     if msg_id in seen_ids: continue
