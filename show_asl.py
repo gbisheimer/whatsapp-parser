@@ -103,7 +103,7 @@ def generate_asl_messages(input_files, output_filename, to_console=False):
         print(f"Finalizado: Se guardaron {len(all_messages)} mensajes en {output_filename}.")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Exporta todos los mensajes de otros canales #ASL a CSV o consola.")
+    parser = argparse.ArgumentParser(description="Muestra todos los mensajes de otros canales #ASL desde show_asl.py.")
     parser.add_argument('input', nargs='*', help='Archivos de entrada o patrones glob (ej: *WhatsApp*.csv)')
     parser.add_argument('-o', '--output', default=DEFAULT_OUTPUT, help=f'Nombre del archivo de salida (por defecto: {DEFAULT_OUTPUT})')
     parser.add_argument('-c', '--console', action='store_true', help='Muestra el resultado por consola en lugar de exportar a CSV')

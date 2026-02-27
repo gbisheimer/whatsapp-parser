@@ -110,7 +110,7 @@ def generate_graficos_messages(input_files, output_filename, ticker_filter=None,
         print(f"Finalizado: Se guardaron {len(all_messages)} mensajes en {output_filename}.")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Exporta mensajes del canal Gráficos #ASL.")
+    parser = argparse.ArgumentParser(description="Muestra mensajes del canal Gráficos #ASL desde show_graficos.py.")
     parser.add_argument('input', nargs='*', help='Archivos de entrada')
     parser.add_argument('-o', '--output', default=DEFAULT_OUTPUT, help=f'Archivo de salida')
     parser.add_argument('-t', '--ticker', help='Filtrar por ticker (ej: AAPL)')

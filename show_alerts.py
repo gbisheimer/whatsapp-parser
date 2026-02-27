@@ -130,7 +130,7 @@ def generate_alerts(input_files, output_filename, ticker_filter=None, to_console
         print(f"Finalizado: Se guardaron {len(all_alerts)} alertas en {output_filename}.")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Exporta alertas de chats de WhatsApp a CSV o consola.")
+    parser = argparse.ArgumentParser(description="Muestra alertas de chats de WhatsApp desde show_alerts.py.")
     parser.add_argument('input', nargs='*', help='Archivos de entrada o patrones glob (ej: *WhatsApp.csv)')
     parser.add_argument('-o', '--output', default=DEFAULT_OUTPUT, help=f'Nombre del archivo de salida (por defecto: {DEFAULT_OUTPUT})')
     parser.add_argument('-t', '--ticker', help='Filtrar por ticker (ej: AAPL)')
