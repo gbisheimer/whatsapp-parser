@@ -87,7 +87,8 @@ def generate_alerts(input_files, output_filename, to_console=False):
                 temporalidad = "45'" if "45" in channel_name else "Diaria"
                 clean_msg = ' '.join(message.replace('\n', ' ').replace('\r', ' ').split())
                 
-                msg_id = f"{date_str}|{time[:5]}|{clean_msg[:40]}"
+                # Deduplicación: Solo una vez por día el mismo mensaje exacto
+                msg_id = f"{date_str}|{clean_msg}"
                 if msg_id in seen_ids:
                     continue
                 seen_ids.add(msg_id)
