@@ -42,7 +42,7 @@ def get_target_files(input_args):
     files = [f for f in os.listdir(BASE_DIR) if f.endswith("-WhatsApp.csv")]
     return sorted(files)
 
-def generate_alerts(input_files, output_filename, ticker_filter=None, to_console=False, full_message=False):
+def generate_alerts(input_files, output_filename, ticker_filter=None, to_console=False, full_message=False, last_n=None):
     files_to_process = get_target_files(input_files)
     
     if not files_to_process:
@@ -111,6 +111,10 @@ def generate_alerts(input_files, output_filename, ticker_filter=None, to_console
         print("No se encontraron alertas oficiales que coincidan.")
         return
 
+    # Aplicar límite de resultados si se especifica
+    if last_n and last_n > 0:
+        all_alerts = all_alerts[-last_n:]
+
     if to_console:
         # Imprimir en consola con formato de tabla simple
         header = f"{'FECHA':<12} | {'HORA':<8} | {'TIPO':<7} | {'ACTIVO':<8} | {'ACCIÓN':<8} | {'MENSAJE'}"
@@ -120,7 +124,7 @@ def generate_alerts(input_files, output_filename, ticker_filter=None, to_console
             msg_display = a['Mensaje'] if full_message else f"{a['Mensaje'][:80]}..."
             print(f"{a['Fecha']:<12} | {a['Hora']:<8} | {a['Tipo']:<7} | {a['Activo']:<8} | {a['Acción']:<8} | {msg_display}")
         print("-" * 120)
-        print(f"Total: {len(all_alerts)} alertas encontradas.\n")
+        print(f"Total: {len(all_alerts)} alertas mostradas.\n")
     else:
         fieldnames = ["Fecha", "Hora", "Tipo", "Activo", "Acción", "Mensaje"]
         with open(output_filename, 'w', newline='', encoding='utf-8-sig') as csvfile:
@@ -136,6 +140,7 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--ticker', help='Filtrar por ticker (ej: AAPL)')
     parser.add_argument('-c', '--console', action='store_true', help='Muestra el resultado por consola en lugar de exportar a CSV')
     parser.add_argument('-f', '--full', action='store_true', help='Muestra el mensaje completo en consola (no lo recorta)')
+    parser.add_argument('-n', '--last', type=int, help='Visualizar solo los N últimos resultados')
     
     args = parser.parse_args()
-    generate_alerts(args.input, args.output, args.ticker, args.console, args.full)
+    generate_alerts(args.input, args.output, args.ticker, args.console, args.full, args.last)

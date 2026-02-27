@@ -34,7 +34,7 @@ def get_target_files(input_args):
     files = [f for f in os.listdir(BASE_DIR) if "WhatsApp" in f and f.endswith(".csv")]
     return sorted(files)
 
-def generate_graficos_messages(input_files, output_filename, ticker_filter=None, to_console=False, full_message=False):
+def generate_graficos_messages(input_files, output_filename, ticker_filter=None, to_console=False, full_message=False, last_n=None):
     files_to_process = get_target_files(input_files)
     
     if not files_to_process:
@@ -92,6 +92,10 @@ def generate_graficos_messages(input_files, output_filename, ticker_filter=None,
         print("No se encontraron mensajes que coincidan con los criterios.")
         return
 
+    # Aplicar límite de resultados si se especifica
+    if last_n and last_n > 0:
+        all_messages = all_messages[-last_n:]
+
     if to_console:
         header = f"{'FECHA':<12} | {'HORA':<8} | {'MENSAJE'}"
         print("\n" + header)
@@ -100,7 +104,7 @@ def generate_graficos_messages(input_files, output_filename, ticker_filter=None,
             msg_display = m['Mensaje'] if full_message else f"{m['Mensaje'][:100]}..."
             print(f"{m['Fecha']:<12} | {m['Hora']:<8} | {msg_display}")
         print("-" * 120)
-        print(f"Total: {len(all_messages)} mensajes encontrados.\n")
+        print(f"Total: {len(all_messages)} mensajes mostrados.\n")
     else:
         fieldnames = ["Fecha", "Hora", "Mensaje"]
         with open(output_filename, 'w', newline='', encoding='utf-8-sig') as csvfile:
@@ -116,6 +120,7 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--ticker', help='Filtrar por ticker (ej: AAPL)')
     parser.add_argument('-c', '--console', action='store_true', help='Mostrar en consola')
     parser.add_argument('-f', '--full', action='store_true', help='Muestra el mensaje completo en consola')
+    parser.add_argument('-n', '--last', type=int, help='Visualizar solo los N últimos resultados')
     
     args = parser.parse_args()
-    generate_graficos_messages(args.input, args.output, args.ticker, args.console, args.full)
+    generate_graficos_messages(args.input, args.output, args.ticker, args.console, args.full, args.last)

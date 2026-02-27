@@ -25,7 +25,7 @@ def get_target_files(input_args):
     files = [f for f in os.listdir(BASE_DIR) if "WhatsApp" in f and f.endswith(".csv")]
     return sorted(files)
 
-def generate_asl_messages(input_files, output_filename, to_console=False):
+def generate_asl_messages(input_files, output_filename, to_console=False, last_n=None):
     files_to_process = get_target_files(input_files)
     
     if not files_to_process:
@@ -86,6 +86,10 @@ def generate_asl_messages(input_files, output_filename, to_console=False):
         print("No se encontraron mensajes en los archivos seleccionados.")
         return
 
+    # Aplicar límite de resultados si se especifica
+    if last_n and last_n > 0:
+        all_messages = all_messages[-last_n:]
+
     if to_console:
         header = f"{'FECHA':<12} | {'HORA':<8} | {'CANAL':<30} | {'MENSAJE'}"
         print("\n" + header)
@@ -93,7 +97,7 @@ def generate_asl_messages(input_files, output_filename, to_console=False):
         for m in all_messages:
             print(f"{m['Fecha']:<12} | {m['Hora']:<8} | {m['Canal'][:30]:<30} | {m['Mensaje'][:60]}...")
         print("-" * 120)
-        print(f"Total: {len(all_messages)} mensajes encontrados.\n")
+        print(f"Total: {len(all_messages)} mensajes mostrados.\n")
     else:
         fieldnames = ["Fecha", "Hora", "Canal", "Mensaje"]
         with open(output_filename, 'w', newline='', encoding='utf-8-sig') as csvfile:
@@ -107,6 +111,7 @@ if __name__ == "__main__":
     parser.add_argument('input', nargs='*', help='Archivos de entrada o patrones glob (ej: *WhatsApp*.csv)')
     parser.add_argument('-o', '--output', default=DEFAULT_OUTPUT, help=f'Nombre del archivo de salida (por defecto: {DEFAULT_OUTPUT})')
     parser.add_argument('-c', '--console', action='store_true', help='Muestra el resultado por consola en lugar de exportar a CSV')
+    parser.add_argument('-n', '--last', type=int, help='Visualizar solo los N últimos resultados')
     
     args = parser.parse_args()
-    generate_asl_messages(args.input, args.output, args.console)
+    generate_asl_messages(args.input, args.output, args.console, args.last)
