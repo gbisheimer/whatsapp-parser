@@ -42,7 +42,7 @@ def get_target_files(input_args):
 
 def process_messages():
     parser = argparse.ArgumentParser(description="Herramienta unificada para visualizar mensajes de WhatsApp.")
-    parser.add_argument('mode', choices=['alerts', 'graficos', 'asl', 'general'], help='Modo de visualización')
+    parser.add_argument('mode', choices=['alerts', 'graficos', 'asl', 'general', 'cafe'], help='Modo de visualización')
     parser.add_argument('input', nargs='*', help='Archivos de entrada')
     parser.add_argument('-t', '--ticker', help='Filtrar por ticker (modos: alerts, graficos)')
     parser.add_argument('-s', '--sender', help='Filtrar por remitente (modo: general)')
@@ -122,6 +122,14 @@ def process_messages():
                     seen_ids.add(msg_id)
                     results.append({"Fecha": date_str, "Hora": time, "Canal": sender.split(' (')[0].strip(), "Mensaje": clean_msg})
 
+                elif args.mode == 'cafe':
+                    if "Café" not in sender or "#ASL" not in sender:
+                        continue
+                    msg_id = f"{date_str}|{sender}|{clean_msg}"
+                    if msg_id in seen_ids: continue
+                    seen_ids.add(msg_id)
+                    results.append({"Fecha": date_str, "Hora": time, "Canal": sender.split(' (')[0].strip(), "Mensaje": clean_msg})
+
                 elif args.mode == 'general':
                     if "#ASL" in sender:
                         continue
@@ -145,10 +153,10 @@ def process_messages():
         if args.mode == 'alerts':
             header = f"{'FECHA':<12} | {'HORA':<8} | {'TIPO':<7} | {'ACTIVO':<8} | {'ACCIÓN':<8} | {'MENSAJE'}"
             def get_fmt(r): return f"{r['Fecha']:<12} | {r['Hora']:<8} | {r['Tipo']:<7} | {r['Activo']:<8} | {r['Acción']:<8} | "
-        elif args.mode == 'general':
+        elif args.mode in ['general']:
             header = f"{'FECHA':<12} | {'HORA':<8} | {'REMITENTE':<30} | {'MENSAJE'}"
             def get_fmt(r): return f"{r['Fecha']:<12} | {r['Hora']:<8} | {r['Remitente'][:30]:<30} | "
-        elif args.mode == 'asl':
+        elif args.mode in ['asl', 'cafe']:
             header = f"{'FECHA':<12} | {'HORA':<8} | {'CANAL':<30} | {'MENSAJE'}"
             def get_fmt(r): return f"{r['Fecha']:<12} | {r['Hora']:<8} | {r['Canal'][:30]:<30} | "
         else: # graficos
