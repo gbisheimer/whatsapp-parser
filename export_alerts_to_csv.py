@@ -42,7 +42,7 @@ def get_target_files(input_args):
     files = [f for f in os.listdir(BASE_DIR) if f.endswith("-WhatsApp.csv")]
     return sorted(files)
 
-def generate_alerts(input_files, output_filename, to_console=False):
+def generate_alerts(input_files, output_filename, ticker_filter=None, to_console=False, full_message=False):
     files_to_process = get_target_files(input_files)
     
     if not files_to_process:
@@ -87,6 +87,11 @@ def generate_alerts(input_files, output_filename, to_console=False):
                 temporalidad = "45'" if "45" in channel_name else "Diaria"
                 clean_msg = ' '.join(message.replace('\n', ' ').replace('\r', ' ').split())
                 
+                # Filtrar por ticker si se solicita
+                activo = extract_ticker(clean_msg)
+                if ticker_filter and ticker_filter.upper() != activo:
+                    continue
+
                 # Deduplicación: Solo una vez por día el mismo mensaje exacto
                 msg_id = f"{date_str}|{clean_msg}"
                 if msg_id in seen_ids:
@@ -97,23 +102,24 @@ def generate_alerts(input_files, output_filename, to_console=False):
                     "Fecha": date_str,
                     "Hora": time,
                     "Tipo": temporalidad,
-                    "Activo": extract_ticker(clean_msg),
+                    "Activo": activo,
                     "Acción": determine_action(clean_msg),
                     "Mensaje": clean_msg
                 })
 
     if not all_alerts:
-        print("No se encontraron alertas oficiales en los archivos seleccionados.")
+        print("No se encontraron alertas oficiales que coincidan.")
         return
 
     if to_console:
         # Imprimir en consola con formato de tabla simple
         header = f"{'FECHA':<12} | {'HORA':<8} | {'TIPO':<7} | {'ACTIVO':<8} | {'ACCIÓN':<8} | {'MENSAJE'}"
         print("\n" + header)
-        print("-" * 100)
+        print("-" * 120)
         for a in all_alerts:
-            print(f"{a['Fecha']:<12} | {a['Hora']:<8} | {a['Tipo']:<7} | {a['Activo']:<8} | {a['Acción']:<8} | {a['Mensaje'][:80]}...")
-        print("-" * 100)
+            msg_display = a['Mensaje'] if full_message else f"{a['Mensaje'][:80]}..."
+            print(f"{a['Fecha']:<12} | {a['Hora']:<8} | {a['Tipo']:<7} | {a['Activo']:<8} | {a['Acción']:<8} | {msg_display}")
+        print("-" * 120)
         print(f"Total: {len(all_alerts)} alertas encontradas.\n")
     else:
         fieldnames = ["Fecha", "Hora", "Tipo", "Activo", "Acción", "Mensaje"]
@@ -127,7 +133,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Exporta alertas de chats de WhatsApp a CSV o consola.")
     parser.add_argument('input', nargs='*', help='Archivos de entrada o patrones glob (ej: *WhatsApp.csv)')
     parser.add_argument('-o', '--output', default=DEFAULT_OUTPUT, help=f'Nombre del archivo de salida (por defecto: {DEFAULT_OUTPUT})')
+    parser.add_argument('-t', '--ticker', help='Filtrar por ticker (ej: AAPL)')
     parser.add_argument('-c', '--console', action='store_true', help='Muestra el resultado por consola en lugar de exportar a CSV')
+    parser.add_argument('-f', '--full', action='store_true', help='Muestra el mensaje completo en consola (no lo recorta)')
     
     args = parser.parse_args()
-    generate_alerts(args.input, args.output, args.console)
+    generate_alerts(args.input, args.output, args.ticker, args.console, args.full)
