@@ -5,7 +5,7 @@ import argparse
 import glob
 
 # Configuración base
-BASE_DIR = r"C:\Users\gbisheimer\Google Drive\Inversiones\Chats"
+BASE_DIR = os.getcwd()
 
 def extract_ticker(text):
     match = re.search(r'\$([A-Z0-9]{1,6})\b', text)
@@ -42,7 +42,7 @@ def get_target_files(input_args):
 
 def process_messages():
     parser = argparse.ArgumentParser(description="Herramienta unificada para visualizar mensajes de WhatsApp.")
-    parser.add_argument('mode', choices=['alerts', 'graficos', 'asl', 'general', 'cafe'], help='Modo de visualización')
+    parser.add_argument('mode', choices=['alertas', 'graficos', 'asl', 'general', 'cafe'], help='Modo de visualización')
     parser.add_argument('input', nargs='*', help='Archivos de entrada')
     parser.add_argument('-t', '--ticker', help='Filtrar por ticker (modos: alerts, graficos)')
     parser.add_argument('-s', '--sender', help='Filtrar por remitente (modo: general)')
@@ -88,7 +88,7 @@ def process_messages():
                 if not clean_msg: continue
 
                 # Lógica por modo
-                if args.mode == 'alerts':
+                if args.mode == 'alertas':
                     if not p_alert_channel.search(sender) or not p_trade.search(clean_msg):
                         continue
                     activo = extract_ticker(clean_msg)
@@ -154,7 +154,7 @@ def process_messages():
 
     # Salida
     if args.console:
-        if args.mode == 'alerts':
+        if args.mode == 'alertas':
             header = f"{'FECHA':<12} | {'HORA':<8} | {'TIPO':<7} | {'ACTIVO':<8} | {'ACCIÓN':<8} | {'MENSAJE'}"
             def get_fmt(r): return f"{r['Fecha']:<12} | {r['Hora']:<8} | {r['Tipo']:<7} | {r['Activo']:<8} | {r['Acción']:<8} | "
         elif args.mode in ['general']:
