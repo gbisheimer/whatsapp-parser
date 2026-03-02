@@ -122,7 +122,10 @@ def process_messages():
                     msg_id = f"{date_str}|{sender}|{clean_msg}"
                     if msg_id in seen_ids: continue
                     seen_ids.add(msg_id)
-                    results.append({"Fecha": date_str, "Hora": time, "Canal": sender.split(' (')[0].strip(), "Mensaje": clean_msg})
+                    parts = sender.split(': ')
+                    canal = parts[0].split(' (')[0].strip()
+                    remitente = parts[1].strip('~ \u202f') if len(parts) > 1 else "N/A"
+                    results.append({"Fecha": date_str, "Hora": time, "Canal": canal, "Remitente": remitente, "Mensaje": clean_msg})
 
                 elif args.mode == 'cafe':
                     if "Café" not in sender or "#ASL" not in sender:
@@ -132,7 +135,10 @@ def process_messages():
                     msg_id = f"{date_str}|{sender}|{clean_msg}"
                     if msg_id in seen_ids: continue
                     seen_ids.add(msg_id)
-                    results.append({"Fecha": date_str, "Hora": time, "Canal": sender.split(' (')[0].strip(), "Mensaje": clean_msg})
+                    parts = sender.split(': ')
+                    canal = parts[0].split(' (')[0].strip()
+                    remitente = parts[1].strip('~ \u202f') if len(parts) > 1 else "N/A"
+                    results.append({"Fecha": date_str, "Hora": time, "Canal": canal, "Remitente": remitente, "Mensaje": clean_msg})
 
                 elif args.mode == 'general':
                     if "#ASL" in sender:
@@ -161,8 +167,8 @@ def process_messages():
             header = f"{'FECHA':<12} | {'HORA':<8} | {'REMITENTE':<30} | {'MENSAJE'}"
             def get_fmt(r): return f"{r['Fecha']:<12} | {r['Hora']:<8} | {r['Remitente'][:30]:<30} | "
         elif args.mode in ['asl', 'cafe']:
-            header = f"{'FECHA':<12} | {'HORA':<8} | {'CANAL':<30} | {'MENSAJE'}"
-            def get_fmt(r): return f"{r['Fecha']:<12} | {r['Hora']:<8} | {r['Canal'][:30]:<30} | "
+            header = f"{'FECHA':<12} | {'HORA':<8} | {'CANAL':<20} | {'REMITENTE':<20} | {'MENSAJE'}"
+            def get_fmt(r): return f"{r['Fecha']:<12} | {r['Hora']:<8} | {r['Canal'][:20]:<20} | {r.get('Remitente', 'N/A')[:20]:<20} | "
         else: # graficos
             header = f"{'FECHA':<12} | {'HORA':<8} | {'MENSAJE'}"
             def get_fmt(r): return f"{r['Fecha']:<12} | {r['Hora']:<8} | "
